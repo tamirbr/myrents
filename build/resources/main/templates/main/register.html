@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html th:lang="${constants.LANG}" xmlns:th="http://www.thymeleaf.org" th:dir="${constants.DIR}">
+<head th:replace="layout :: head(${constants.MAIN_HEADER})"></head>
+<body>
+
+<div th:replace="layout :: top"></div>
+
+<div class="jumbotron4 jumbotron-fluid">
+<div class="container">
+    <!-- registration form -->
+    <form th:action="@{${register}}" method="post" th:object="${user}" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-md-6 container">
+                <fieldset class="form-group">
+                    <label class="labelText" th:text="${'*'+constants.FIRST_NAME}"></label>
+                    <input type="text" class="form-control" th:field="*{firstName}"/>
+                    <label th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}" class="text-danger"></label>
+                </fieldset>
+                <fieldset class="form-group">
+                    <label class="labelText" th:text="${'*'+constants.LAST_NAME}"></label>
+                    <input type="text" class="form-control" th:field="*{lastName}"/>
+                    <label th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}" class="text-danger"></label>
+                </fieldset>
+                <fieldset class="form-group">
+                    <label class="labelText" th:text="${'*'+constants.PASSWORD}"></label>
+                    <input type="password" class="form-control" th:field="*{password}"/>
+                    <label th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-danger"></label>
+                </fieldset>
+                <fieldset class="form-group">
+                    <label class="labelText" th:text="${'*'+constants.EMAIL}"></label>
+                    <input type="email" class="form-control" th:field="*{email}"/>
+                    <label th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></label>
+                </fieldset>
+                <fieldset class="form-group">
+                    <label class="labelText" th:text="${'*'+constants.PHONE}"></label>
+                    <input type="text" class="form-control" th:field="*{phone}"/>
+                    <label th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="text-danger"></label>
+                </fieldset>
+                <fieldset class="form-group">
+                    <label class="labelText mb-0" th:text="${'*'+constants.ADDRESS}"></label>
+                    <h6 class="font-weight-normal h7 mb-3" th:text="${'('+constants.ADDRESS_INFO+')'}"></h6>
+                    <h7 ></h7>
+                    <input id="address" type="text" onchange="clearInput()" class="form-control" th:field="*{address}"/>
+                    <input id="lat" type="text" class="form-control d-none" th:field="*{lat}"/>
+                    <input id="lng" type="text" class="form-control d-none" th:field="*{lng}"/>
+                    <label th:if="${#fields.hasErrors('lat')}" th:errors="*{lat}" class="text-danger"></label>
+                    <label th:if="${#fields.hasErrors('address')}" th:errors="*{address}" class="text-danger"></label>
+                </fieldset>
+            </div>
+            <div class="col-md-6 container">
+                <div class="row mt-2">
+                    <div class="col-md-6">
+                        <div id="map" class="d-none"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="labelText" th:text="${constants.USER_IMAGE}"></label>
+                        <input id="userImage" name="userImage" type="file" accept="image/*" onchange="readURL(this);"/>
+                        <img id="uploadImageShow" class="rounded img-fluid mx-auto m-4" th:src="@{/materialize/img/user.jpg}"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+            <div class="form-check text-right mt-3">
+                <label class="custom-control custom-checkbox">
+                    <div style="width:25px;height:25px" class="col text-right">
+                        <input name="terms" value="true" type="checkbox" class="custom-control-input"/>
+                        <span class="custom-control-indicator"></span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <span class="custom-control-description labelText">אני מאשר כי קראתי את  <a target="_blank" href="/terms">תנאי השימוש</a> ואני מסכים להם</span>
+                </label>
+            </div>
+            <div th:if="${success != null}" th:text="${success}" class="alert alert-danger" role="alert">
+            </div>
+            <div class="g-recaptcha mb-3" data-sitekey="6LeOOk8UAAAAANBNbbLRMqwlxXmG7xl7BxxDhlGL"></div>
+            <div th:if="${recaptcha != null}" th:text="${recaptcha}" class="alert alert-danger" role="alert">
+            </div>
+        <hr class="m-b-2"/>
+        <button type="submit" class="btn-send" th:text="${constants.SEND}"></button>
+    </form>
+</div>
+</div>
+
+<br/>
+<div th:replace="layout :: loginWin"></div>
+<div th:replace="layout :: bottom"></div>
+
+<script th:inline="javascript">
+    var input = document.getElementById('address');
+    var autocomplete = new google.maps.places.Autocomplete(input);
+    var lat = /*[[${user.lat}]]*/ 0;
+    var lon = /*[[${user.lng}]]*/ 0;
+
+    autocomplete.addListener('place_changed', function() {
+        var place = autocomplete.getPlace();
+        if (!place.geometry) {
+            // User entered the name of a Place that was not suggested and
+            // pressed the Enter key, or the Place Details request failed.
+            document.getElementById('lat').value = 0;
+            document.getElementById('lng').value = 0;
+            window.alert("No details available for input: '" + place.name + "'");
+            return;
+        } else{
+            lat = parseFloat(place.geometry.location.lat());
+            lon = parseFloat(place.geometry.location.lng());
+
+            document.getElementById('lat').value = lat;
+            document.getElementById('lng').value = lon;
+
+            initMap();
+        }
+    });
+
+    function clearInput() {
+        document.getElementById('lat').value = 0;
+        document.getElementById('lng').value = 0;
+    }
+
+    function initMap() {
+        document.getElementById('map').className = "";
+        var uluru = {lat: lat, lng: lon};
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 14,
+            center: uluru
+        });
+        var marker = new google.maps.Marker({
+            position: uluru,
+            map: map
+        });
+    }
+</script>
+
+<div th:replace="layout :: js"></div>
+
+</body>
+</html>

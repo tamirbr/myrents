@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html th:lang="${constants.LANG}" xmlns:th="http://www.thymeleaf.org" th:dir="${constants.DIR}">
+<head th:replace="layout :: head(${constants.MAIN_HEADER})"></head>
+<body>
+
+<div th:replace="layout :: top"></div>
+
+<div class="jumbotron4 jumbotron-fluid">
+    <div class="container">
+        <div class="row">
+            <div class="list-group pl-3 col-md-3">
+                <div th:replace="layout :: side_menu"></div>
+            </div>
+            <div class="col-md-9 p-0">
+                <div th:each="item : ${user.getItems()}" class="row m-2 mb-3 box-content">
+                    <div class="col-auto text-center pl-0" th:onclick="'openUrl(\''+${'/editRent/'+item.id}+'\');'">
+                        <img th:if="${item.getImage() != null}" class="rounded rentImageBig mt-3 mb-3" th:src="@{|/smallImages/${item.id}.jpg|}" alt="תאור המוצר"/>
+                        <img th:if="${item.getImage() == null}" class="rounded rentImageBig mt-3 mb-3" th:src="@{/materialize/img/no_image.jpg}" alt="תאור המוצר"/>
+                    </div>
+                    <div class="col m-3 p-0">
+                        <div class="row">
+                            <div class="col-md" th:onclick="'openUrl(\''+${'/editRent/'+item.id}+'\');'">
+                                <h5 class="font-weight-normal text-info" th:text="${item.getName()}"></h5>
+                                <h6 th:if="${item.isNotEmptyOrNull(constants.HOUR)}" class="font-weight-normal mb-1" th:text="${constants.PRICE_PER+' '+constants.HOUR+' '+item.priceHour+' '+constants.MONEY}"></h6>
+                                <h6 th:if="${item.isNotEmptyOrNull(constants.DAY)}" class="font-weight-normal mb-1" th:text="${constants.PRICE_PER+' '+constants.DAY+' '+item.priceDay+' '+constants.MONEY}"></h6>
+                                <h6 th:if="${item.isNotEmptyOrNull(constants.MONTH)}" class="font-weight-normal mb-2" th:text="${constants.PRICE_PER+' '+constants.MONTH+' '+item.priceMonth+' '+constants.MONEY}"></h6>
+
+                                <h6 class="font-weight-normal h7 mb-1 mt-2" th:text="${constants.DATE+': '+ item.getPostDateString()}"></h6>
+                            </div>
+                            <div class="col-md-auto">
+                                <label class="switch switch-flat mt-1 mb-1">
+                                    <input th:id="${item.id}" type="checkbox" th:onclick="'submitStatus(\'' + ${item.id} + '\');'" th:checked="${item.active}" class="switch-input"/>
+                                    <span class="switch-label" th:attr="data-on=${constants.ACTIVE}, data-off=${constants.NOT_ACTIVE}"></span>
+                                    <span class="switch-handle"></span>
+                                </label>
+                                <button type="button" class="btn-switch mb-1 mt-2" th:onclick="'openUrl(\'' + ${'/editRent/'+item.id} + '\');'" th:text="${constants.EDIT_RENT}"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<br/>
+<div th:replace="layout :: bottom"></div>
+<div th:replace="layout :: js"></div>
+
+<!--<script>
+    function submitStatus(id){
+        $(document).ready(function(){
+            $.post("/changeRentState/"+id);
+        });
+    }
+</script>-->
+
+
+</body>
+</html>

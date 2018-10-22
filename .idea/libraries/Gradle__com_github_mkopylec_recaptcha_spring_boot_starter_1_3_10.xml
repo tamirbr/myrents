@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.github.mkopylec:recaptcha-spring-boot-starter:1.3.10">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.mkopylec/recaptcha-spring-boot-starter/1.3.10/9cace4762225500779f5329bcb6aeb319c5dbe98/recaptcha-spring-boot-starter-1.3.10.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.mkopylec/recaptcha-spring-boot-starter/1.3.10/b11fb5833b51de173d4b1c3f4e0822fde02ce864/recaptcha-spring-boot-starter-1.3.10-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

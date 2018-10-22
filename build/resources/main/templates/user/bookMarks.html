@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html th:lang="${constants.LANG}" xmlns:th="http://www.thymeleaf.org" th:dir="${constants.DIR}">
+<head th:replace="layout :: head(${constants.MAIN_HEADER})"></head>
+<body>
+
+<div th:replace="layout :: top"></div>
+
+<div class="jumbotron4 jumbotron-fluid">
+    <div class="container">
+        <div class="row">
+            <div class="list-group pl-3 col-md-3">
+                <div th:replace="layout :: side_menu"></div>
+            </div>
+            <div class="col-md-9 p-0">
+                <div th:each="bookMark : ${user.bookMarks}">
+                <div class="row m-2 mb-3 box-content" th:onclick="'openUrl(\''+${'/item/'+bookMark.item.id}+'\');'">
+                    <div class="col-auto pl-0">
+                        <img th:if="${bookMark.item.getImage() != null}"  class="rounded rentImageBig mt-3 mb-3" th:src="@{|/smallImages/${bookMark.item.id}.jpg|}" th:alt="${bookMark.item.name}"/>
+                        <img th:if="${bookMark.item.getImage() == null}"  class="rounded rentImageBig mt-3 mb-3" th:src="@{/materialize/img/no_image.jpg}" th:alt="${bookMark.item.name}"/>
+                    </div>
+                    <div class="col m-3 p-0">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="font-weight-normal text-info" th:text="${bookMark.item.getName()}"></h5>
+                            </div>
+                            <div class="col-auto">
+                                <div th:if="${user.getBookMarkById(bookMark.item.id) == null}" th:id="${'bookMarkStar'+bookMark.item.id}" th:onclick="'submitBookmark(\'' + ${bookMark.item.id} + '\');'" class="star-image mt-1"/>
+                                <div th:if="${user.getBookMarkById(bookMark.item.id) != null}" th:id="${'bookMarkStar'+bookMark.item.id}" th:onclick="'submitBookmark(\'' + ${bookMark.item.id} + '\');'" class="star-image-on mt-1"/>
+                            </div>
+                        </div>
+                        <h6 th:if="${bookMark.item.isNotEmptyOrNull(constants.HOUR)}" class="font-weight-normal mb-1" th:text="${constants.PRICE_PER+' '+constants.HOUR+' '+bookMark.item.priceHour+' '+constants.MONEY}"></h6>
+                        <h6 th:if="${bookMark.item.isNotEmptyOrNull(constants.DAY)}" class="font-weight-normal mb-1" th:text="${constants.PRICE_PER+' '+constants.DAY+' '+bookMark.item.priceDay+' '+constants.MONEY}"></h6>
+                        <h6 th:if="${bookMark.item.isNotEmptyOrNull(constants.MONTH)}" class="font-weight-normal mb-2" th:text="${constants.PRICE_PER+' '+constants.MONTH+' '+bookMark.item.priceMonth+' '+constants.MONEY}"></h6>
+
+                        <h6 class="font-weight-normal h7 mt-2" th:text="${constants.DATE+': '+ bookMark.item.getPostDateString()}"></h6>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<br/>
+<div th:replace="layout :: bottom"></div>
+
+
+<div th:replace="layout :: js"></div>
+
+</body>
+</html>

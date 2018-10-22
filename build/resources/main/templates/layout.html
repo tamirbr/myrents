@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(page_title)">
+
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <link rel="icon" th:href="@{/materialize/img/logoicon.png}" />
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{/materialize/css/bootstrap.css}"/>
+    <link rel="stylesheet" th:href="@{/materialize/custom.css}"/>
+
+    <title th:text="${page_title}"></title>
+
+    <!--<link class="jsbin" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
+    <script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>-->
+
+    <script type="text/javascript">
+            function loadContent(url) {
+                console.log(url)
+            }
+
+            function readURL(input) {
+                if (input.files) {
+                    var reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        $('#uploadImageShow')
+                            .attr('src', e.target.result);
+                    };
+
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+
+            function openUrl(url) {
+                window.open(url,"_self")
+            }
+
+            function submitStatus(id){
+                $(document).ready(function(){
+                    $.post("/changeRentState/"+id);
+                });
+            }
+
+            function submitBookmark(id){
+                $(document).ready(function(){
+                    $.post("/bookmark/"+id);
+                });
+
+                var name = document.getElementById('bookMarkStar'+id).className;
+                if(name == "star-image-on mt-1"){
+                    document.getElementById('bookMarkStar'+id).className = "star-image mt-1";
+                } else if(name == "star-image mt-1"){
+                    document.getElementById('bookMarkStar'+id).className = "star-image-on mt-1";
+                }
+            }
+
+            function arrowSearch() {
+                var arrowSearch = document.getElementById('arrowSearch');
+                if(arrowSearch.src == document.location.origin+"/materialize/img/arrow-down.png"){
+                    arrowSearch.src = "/materialize/img/arrow-side.png"
+                } else{
+                    arrowSearch.src = "/materialize/img/arrow-down.png"
+                }
+            }
+    </script>
+
+    <script src='https://www.google.com/recaptcha/api.js'></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places&amp;sensor=false&amp;key=AIzaSyCmhylDo35WNk2kJk9qOuuzsNKBpDijtYM"></script>
+    <!--<script async="async" defer="defer" th:src="@{https://maps.googleapis.com/maps/api/js(callback=initMap,sensor=false)}"
+            type="text/javascript"></script>
+
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&amp;libraries=places&amp;callback=initMap&amp;key=AIzaSyCmhylDo35WNk2kJk9qOuuzsNKBpDijtYM" async="async" defer="defer"></script>-->
+</head>
+<body>
+
+
+<!--===================================
+      TOP SITE MODAL
+    ====================================-->
+<div th:fragment="top">
+    <nav id="top" class="navbar-default fixed-top jumbotron-fluid">
+        <div class="container">
+            <div class="row">
+                <div th:if="${user.id != null}" class="col-auto pl-0 pr-2 d-none d-lg-block">
+                    <a href="/personalInfo">
+                        <img th:if="${user.image != null}" class="user-icon" th:src="@{|/smallUserImage/${user.id}.jpg|}"/>
+                        <img th:if="${user.image == null}" class="user-icon" th:src="@{/materialize/img/user.jpg}"/>
+                    </a>
+                </div>
+
+                <div class="col-auto p-0">
+                    <!-- nav bar -->
+                    <nav class="navbar-dark navbar-expand-md p-0 m-1">
+                        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler2" aria-controls="navbarToggler2" aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarToggler2">
+                            <ul class="navbar-nav mr-right mt-lg-0 p-md-0 container">
+                                <li class="nav-item active">
+                                    <a class="nav-link" th:href="@{'/'}">עמוד הבית</a>
+                                    <hr class="d-md-none mt-0 mb-0"/>
+                                </li>
+                                <li th:if="${user.id != null}" class="nav-item dropdown">
+                                    <a class="nav-link" href="/myRents" th:text="${constants.MY_RENTS}"></a>
+                                    <hr class="d-md-none mt-0 mb-0"/>
+                                </li>
+                                <li th:if="${user.id != null}" class="nav-item dropdown">
+                                    <a class="nav-link" href="/newRent" th:text="${constants.NEW_RENT}"></a>
+                                    <hr class="d-md-none mt-0 mb-0"/>
+                                </li>
+                                <li th:if="${user.id != null}" class="nav-item dropdown d-md-none">
+                                    <a class="nav-link" href="/bookMarks" th:text="${constants.BOOK_MARKS}"></a>
+                                    <hr class="d-md-none mt-0 mb-0"/>
+                                </li>
+                                <li th:if="${user.id != null}" class="nav-item dropdown d-md-none">
+                                    <a class="nav-link" href="/personalInfo" th:text="${constants.USER_INFO}"></a>
+                                    <hr class="d-md-none mt-0 mb-0"/>
+                                </li>
+                                <li th:if="${user.id != null}" class="nav-item dropdown d-md-none">
+                                    <a class="nav-link" th:href="${'/store/'+user.id}" th:text="${constants.SELF_PAGE}"></a>
+                                    <hr class="d-md-none mt-0 mb-0"/>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">צור קשר</a>
+                                    <hr class="d-md-none mt-0 mb-0"/>
+                                </li>
+                                <li class="nav-item d-none d-md-block">
+                                    <p class="nav-link mb-0">|</p>
+                                    <hr class="d-md-none mt-0 mb-0"/>
+                                </li>
+                                <li th:if="${user.id != null}" class="nav-item dropdown">
+                                    <a class="nav-link" href="/logout" th:text="${constants.LOG_OUT}"></a>
+                                </li>
+                                <li th:if="${user.id == null}" class="nav-item dropdown">
+                                    <a class="nav-link" href="#" data-toggle="modal" data-target="#login" th:text="${constants.LOG_IN}"></a>
+                                    <hr class="d-md-none mt-0 mb-0"/>
+                                </li>
+                                <li th:if="${user.id == null}" class="nav-item dropdown">
+                                    <a class="nav-link" href="/register" th:text="${constants.REGISTER}"></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </nav>
+                    <!-- /nav bar -->
+                </div>
+
+                <div class="col">
+
+                </div>
+                <div class="col-auto">
+                    <a th:href="@{/}"><h1 class="m-0" th:text="${constants.SITE_NAME}"></h1></a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="jumbotron3 jumbotron-fluid">
+    <div class="container">
+
+        <div class="row">
+            <div class="col-lg align-self-center">
+                <nav>
+                    <div class="row">
+                        <div class="col">
+                            <div class="row text-center">
+                                <div class="col p-0" onclick="categoryChecked('products')">
+                                    <img id="products" class="img-fluid m-0 p-1 opacity-img" th:src="@{/materialize/img/products.png}"/>
+                                    <h6 id="productsText" class="font-weight-normal h8 text-dark mb-0" th:text="${constants.PRODUCTS}"></h6>
+                                </div>
+                                <div class="col p-0" onclick="categoryChecked('realestates')">
+                                    <img id="realestates" class="img-fluid m-0 p-1 opacity-img" th:src="@{/materialize/img/realestate.png}"/>
+                                    <h6 id="realestatesText" class="font-weight-normal h8 text-dark mb-0" th:text="${constants.REAL_ESTATE}"></h6>
+                                </div>
+                                <div class="col p-0" onclick="categoryChecked('cars')">
+                                    <img id="cars" class="img-fluid m-0 p-1 opacity-img" th:src="@{/materialize/img/car.png}"/>
+                                    <h6 id="carsText" class="font-weight-normal h8 text-dark mb-0" th:text="${constants.CARS}"></h6>
+                                </div>
+                                <div class="col p-0" onclick="categoryChecked('bikes')">
+                                    <img id="bikes" class="img-fluid m-0 p-1 opacity-img" th:src="@{/materialize/img/bike.png}"/>
+                                    <h6 id="bikesText" class="font-weight-normal h8 text-dark mb-0" th:text="${constants.BIKES}"></h6>
+                                </div>
+                                <div class="col p-0" onclick="categoryChecked('scooters')">
+                                    <img id="scooters" class="img-fluid m-0 p-1 opacity-img" th:src="@{/materialize/img/scooter.png}"/>
+                                    <h6 id="scootersText" class="font-weight-normal h8 text-dark mb-0" th:text="${constants.SCOOTERS}"></h6>
+                                </div>
+                                <div class="col p-0" onclick="categoryChecked('jeeps')">
+                                    <img id="jeeps" class="img-fluid m-0 p-1 opacity-img" th:src="@{/materialize/img/jeep.png}"/>
+                                    <h6 id="jeepsText" class="font-weight-normal h8 text-dark mb-0" th:text="${constants.JEEPS}"></h6>
+                                </div>
+                                <div class="col p-0" onclick="categoryChecked('trucks')">
+                                    <img id="trucks" class="img-fluid m-0 p-1 opacity-img" th:src="@{/materialize/img/truck.png}"/>
+                                    <h6 id="trucksText" class="font-weight-normal h8 text-dark mb-0" th:text="${constants.TRUCKS}"></h6>
+                                </div>
+                            </div>
+
+                            <button class="navbar-toggler pb-0" onclick="arrowSearch()" type="button" data-toggle="collapse" data-target="#searchBar" aria-controls="searchBar" aria-expanded="false" aria-label="Toggle navigation">
+                                <div class="row">
+                                    <div class="col-auto pr-1">
+                                        <h5 class="font-weight-normal text-dark m-0" th:text="${constants.FIND_RENTS}"></h5>
+                                    </div>
+                                    <div class="col-auto p-0">
+                                        <img id="arrowSearch" th:src="@{/materialize/img/arrow-side.png}"/>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="collapse mb-2 navbar-collapse" id="searchBar">
+                        <form id="searchForm" name="searchForm" th:action="@{/search}" method="get" th:object="${item}">
+                            <div class="row p-2">
+                                <div class="col-md">
+                                    <div class="row">
+                                        <div class="col-md mb-1 mt-1 pr-1 pl-1">
+                                            <input name="address" id="address-input" type="text" onchange="clearSearchInput()" class="form-control no-border" placeholder="מיקום החיפוש?"/>
+                                        </div>
+                                        <div class="col-md mb-1 mt-1 pr-1 pl-1">
+                                            <div class="row" style="margin: 0px;">
+                                                <div class="col pl-1 pr-0">
+                                                    <select name="cat" id="cat" onchange="subCategory()" class="customised-select" style="width:100%;">
+                                                        <option value="0"  th:text="${'ללא קטגוריה'}"></option>
+                                                    </select>
+                                                </div>
+                                                <div class="col pr-1 pl-0">
+                                                    <select name="subCat" id="subCat" class="customised-select" style="width:100%;">
+                                                        <option value="0"  th:text="${'ללא תת קטגוריה'}"></option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md mb-1 mt-1 pr-1 pl-1">
+                                            <div class="row" style="margin: 0px;">
+                                                <div class="col pl-1 pr-0">
+                                                    <input name="priceStart" id="priceStart" type="number" class="form-control no-border" placeholder="ממחיר"/>
+                                                </div>
+                                                <div class="col pr-1 pl-0">
+                                                    <input name="priceEnd" id="priceEnd" type="number" class="form-control no-border" placeholder="עד מחיר"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md mb-1 mt-1 pr-1 pl-1">
+                                            <div class="row" style="margin: 0px;">
+                                                <div class="col pl-1 pr-0">
+                                                    <select name="priceType" id="priceType" class="customised-select" style="width:100%;">
+                                                        <option value="priceHour"  th:text="${constants.PRICE_PER+' '+constants.HOUR}"></option>
+                                                        <option value="priceDay"   th:text="${constants.PRICE_PER+' '+constants.DAY}"></option>
+                                                        <option value="priceMonth" th:text="${constants.PRICE_PER+' '+constants.MONTH}"></option>
+                                                    </select>
+                                                </div>
+                                                <div class="col pr-1 pl-0">
+                                                    <input name="search" id="search" type="text" class="form-control no-border" placeholder="טקסט חופשי"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <select name="groupType" id="groupType" onchange="categoryChecked(this.options[this.selectedIndex].value);" class="customised-select d-none" style="width:100%;">
+                                    <div th:replace="layout :: groupTypes"></div>
+                                </select>
+                                <input id="userLat" name="userLat" type="text" class="form-control d-none"/>
+                                <input id="userLng" name="userLng" type="text" class="form-control d-none"/>
+                                <input id="sort" name="sort" type="text" class="form-control d-none" value="tempDistance"/>
+                                <input id="page" name="page" type="text" class="form-control d-none" value="1"/>
+                                <input id="distance" name="distance" type="text" class="form-control d-none" value="30"/>
+                                <div class="col-md-auto mb-1 mt-1 pr-1 pl-1 align-self-end">
+                                    <button type="button" onclick="submitSearch();" style="width: 80px; height: 70px;" class="search-icon d-none d-md-block">
+                                        <h6 class="text-center-ver">חיפוש</h6>
+                                    </button>
+                                    <!--<img type="submit" class="d-none d-md-block" height="auto" width="auto" src="/materialize/vectors/magnifier-tool.svg"/>-->
+                                    <button type="button" onclick="submitSearch();" class="btn-search d-md-none" style="width: 100%;" th:text="${constants.SEARCH}"></button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </nav>
+
+            </div>
+            <div class="col-lg-auto m-2 align-self-center" th:if="${mainPages}">
+                <div th:if="${user.id == null}" class="text-center">
+                    <h2 class="font-weight-normal text-dark mb-2" th:text="${constants.SITE_SLOGAN}"></h2>
+                    <h5 class="font-weight-normal text-dark mb-2" th:text="${constants.REGISTER_NOW}"></h5>
+                    <div class="row">
+                        <div class="col p-1">
+                            <button type="button" style="width: 100%;" onclick="openUrl('/register')" class="btn btn-outline-light" th:text="${constants.REGISTER}"></button>
+                        </div>
+                        <div class="col p-1">
+                            <button type="button" style="width: 100%;" data-toggle="modal" data-target="#login" class="btn btn-outline-light" th:text="${constants.LOG_IN}"></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${user.id != null}" class="text-center">
+                    <h2 class="font-weight-normal text-dark mb-2" th:text="${constants.USER_PANEL}"></h2>
+                    <div class="row">
+                        <div class="col p-1">
+                            <button type="button" onclick="openUrl('/myRents')" style="width: 100%;" class="btn btn-outline-light" th:text="${constants.MY_RENTS}"></button>
+                        </div>
+                        <div class="col p-1">
+                            <button type="button" onclick="openUrl('/newRent')" style="width: 100%;" class="btn btn-outline-light" th:text="${constants.NEW_RENT}"></button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col p-1 d-none d-lg-block">
+                            <button type="button" onclick="openUrl('/bookMarks')" style="width: 100%;  padding: 12px; font-size:20px" class="btn btn-outline-light" th:text="${constants.BOOK_MARKS}"></button>
+                        </div>
+                        <div class="col p-1 d-none d-lg-block">
+                            <button type="button" th:onclick="'openUrl(\''+${'/store/'+user.id}+'\');'" style="width: 100%;" class="btn btn-outline-light" th:text="${constants.SELF_PAGE}"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <div th:if="${pageTitle != null}" class="jumbotron5 jumbotron-fluid">
+        <div class="container">
+            <h5 class="font-weight-normal text-info mb-0 p-2" th:text="${pageTitle}"></h5>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="ErrorModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title text-white">יש לבחור מיקום</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body rounded">
+                    על מנת לבצע חיפוש יש לבחור את אזור החיפוש
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-send-grey" data-dismiss="modal">סגור</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!--===================================
+      END OFF TOP SITE MODAL
+    ====================================-->
+
+
+<!--===================================
+      FOOTER MODAL
+    ====================================-->
+
+<footer th:fragment="bottom" class="footer">
+    <div class="container text-center">
+        <br/>
+        MyRents - השכרות בין אנשים
+        <br/>
+    </div>
+</footer>
+
+
+
+<!--===================================
+      REGISTER MODAL
+    ====================================-->
+
+<div th:fragment="registerWin" id="register" class="modal fade">
+    <div  id="registerModal" class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <h4 class="modal-title text-white" th:text="${constants.REGISTER}"></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- registration form -->
+                <form th:action="@{${register}}" method="post" th:object="${user}">
+                    <fieldset class="form-group">
+                        <label class="labelText" th:text="${'*'+constants.FIRST_NAME}"></label>
+                        <input type="text" class="form-control" th:field="*{firstName}"/>
+                        <label th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}" class="text-danger"></label>
+                    </fieldset>
+                    <fieldset class="form-group">
+                        <label class="labelText" th:text="${'*'+constants.LAST_NAME}"></label>
+                        <input type="text" class="form-control" th:field="*{lastName}"/>
+                        <label th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}" class="text-danger"></label>
+                    </fieldset>
+                    <fieldset class="form-group">
+                        <label class="labelText" th:text="${'*'+constants.PASSWORD}"></label>
+                        <input type="password" class="form-control" th:field="*{password}"/>
+                        <label th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-danger"></label>
+                    </fieldset>
+                    <fieldset class="form-group">
+                        <label class="labelText" th:text="${'*'+constants.EMAIL}"></label>
+                        <input type="email" class="form-control" th:field="*{email}"/>
+                        <label th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></label>
+                    </fieldset>
+                    <fieldset class="form-group">
+                        <label class="labelText" th:text="${'*'+constants.PHONE}"></label>
+                        <input type="text" class="form-control" th:field="*{phone}"/>
+                        <label th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="text-danger"></label>
+                    </fieldset>
+                    <div class="form-check text-right">
+                        <label class="custom-control custom-checkbox">
+                            <div style="width:25px;height:25px" class="col text-right">
+                                <input name="terms" value="true" type="checkbox" class="custom-control-input"/>
+                                <span class="custom-control-indicator"></span>
+                            </div>
+                            &nbsp;&nbsp;
+                            <span class="custom-control-description labelText">אני מאשר כי קראתי את  <a target="_blank" href="/terms">תנאי השימוש</a> ואני מסכים להם</span>
+                        </label>
+                    </div>
+                    <div class="g-recaptcha" data-sitekey="6LeOOk8UAAAAANBNbbLRMqwlxXmG7xl7BxxDhlGL"></div>
+                    <hr class="m-b-2"/>
+                    <button type="submit" class="btn-send" th:text="${constants.SEND}"></button>
+                </form>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<!--===================================
+      LOGIN MODAL
+    ====================================-->
+
+<div th:fragment="loginWin" id="login" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <h4 class="modal-title text-white" th:text="${constants.LOG_IN}"></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body rounded">
+                <!-- registration form -->
+                <form th:action="@{${login}}" method="post" th:object="${user}">
+                    <fieldset class="form-group">
+                        <label class="labelText" th:text="${constants.EMAIL}"></label>
+                        <input type="email" class="form-control" th:field="*{email}"/>
+                    </fieldset>
+                    <fieldset class="form-group">
+                        <label class="labelText" th:text="${constants.PASSWORD}"></label>
+                        <input type="password" class="form-control" th:field="*{password}"/>
+                    </fieldset>
+                    <div class="g-recaptcha" data-sitekey="6LeOOk8UAAAAANBNbbLRMqwlxXmG7xl7BxxDhlGL"></div>
+                    <div class="form-check text-right mt-2">
+                        <label class="custom-control custom-checkbox m-0">
+                            <div style="width:25px;height:25px" class="col text-right">
+                                <input name="rememberPass" type="checkbox" class="custom-control-input"/>
+                                <span class="custom-control-indicator"></span>
+                            </div>
+                            &nbsp;&nbsp;
+                            <span class="custom-control-description labelText" th:text="${constants.REMEMBER_PASS}"></span>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn-send-grey" style="width: 100%;" th:text="${constants.SEND}"></button>
+                    <hr class="m-b-2"/>
+                    <div class="row">
+                        <div class="col">
+                            <button type="button" data-dismiss="modal" class="btn-delete">סגור</button>
+                        </div>
+                        <div class="col-auto">
+                            <a class="nav-link m-0 p-0" href="/register">אינך רשום? הרשם עכשיו</a>
+                            <a class="nav-link m-0 p-0" href="/forgotPassword">לחץ כאן לשחזור סיסמה</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<!--===================================
+      GROUP TYPES MODAL
+    ====================================-->
+<div th:fragment="groupTypes">
+    <option th:value="${constants.PRODUCTS_VALUE}" th:text="${constants.PRODUCTS}"></option>
+    <option th:value="${constants.REAL_ESTATE_VALUE}" th:text="${constants.REAL_ESTATE}"></option>
+    <option th:value="${constants.CARS_VALUE}" th:text="${constants.CARS}"></option>
+    <option th:value="${constants.JEEPS_VALUE}" th:text="${constants.JEEPS}"></option>
+    <option th:value="${constants.TRUCKS_VALUE}" th:text="${constants.TRUCKS}"></option>
+    <option th:value="${constants.BIKES_VALUE}" th:text="${constants.BIKES}"></option>
+    <option th:value="${constants.SCOOTERS_VALUE}" th:text="${constants.SCOOTERS}"></option>
+</div>
+
+
+<!--===================================
+      SIDE MENU MODAL
+    ====================================-->
+<div class="d-none d-md-block" th:fragment="side_menu">
+    <button onclick="location.href='/bookMarks';" type="button" class="list-group-item list-group-item-action">
+        <div class="row">
+            <div class="col">
+                <p class="mb-0" th:text="${constants.BOOK_MARKS}"></p>
+            </div>
+            <div th:if="${!user.bookMarks.isEmpty()}" class="col-auto">
+                <span class="badge badge-primary badge-pill" th:text="${user.bookMarks.size()}"></span>
+            </div>
+        </div>
+    </button>
+    <button onclick="location.href='/myRents';" type="button" class="list-group-item list-group-item-action">
+        <div class="row">
+            <div class="col">
+                <p class="mb-0" th:text="${constants.MY_RENTS}"></p>
+            </div>
+            <div th:if="${!user.items.isEmpty()}" class="col-auto">
+                <span class="badge badge-primary badge-pill" th:text="${user.items.size()}"></span>
+            </div>
+        </div>
+    </button>
+    <button onclick="location.href='/newRent';" type="button" th:text="${constants.NEW_RENT}" class="list-group-item list-group-item-action"></button>
+    <button th:onclick="'openUrl(\''+${'/store/'+user.id}+'\');'" type="button" th:text="${constants.SELF_PAGE}" class="list-group-item list-group-item-action"></button>
+    <button onclick="location.href='/personalInfo';" type="button" th:text="${constants.USER_INFO}" class="list-group-item list-group-item-action"></button>
+    <button onclick="location.href='/logout';" type="button" th:text="${constants.LOG_OUT}" class="list-group-item list-group-item-action list-group-item-warning"></button>
+</div>
+
+
+<!--===================================
+      PASSWORD CHANGE MODAL
+    ====================================-->
+
+<div th:fragment="password_change">
+<div id="passwordForm" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-white">שינוי סיסמה</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- registration form -->
+                <form th:action="@{${password}}" method="post">
+                    <div th:if="${fail != null}" th:text="${fail}" class="alert alert-danger" role="alert">
+                    </div>
+                    <fieldset class="form-group mb-4">
+                        <label>סיסמה ישנה:</label>
+                        <input name="oldPass" type="password" class="form-control"/>
+                    </fieldset>
+                    <fieldset class="form-group">
+                        <label>סיסמה חדשה:</label>
+                        <input name="pass1" type="password" class="form-control"/>
+                    </fieldset>
+                    <fieldset class="form-group">
+                        <label>אימות סיסמה:</label>
+                        <input name="pass2" type="password" class="form-control"/>
+                    </fieldset>
+                    <hr class="m-b-2"/>
+                    <button type="submit" class="btn-send-grey">עדכן סיסמה</button>
+                </form>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+</div>
+
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<div th:fragment="js">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+    <script th:inline="javascript">
+        $(window).scroll(function(){
+            $('nav').toggleClass('scrolled', $(this).scrollTop() > 50);
+            $('nav').toggleClass('scrolled', $(this).scrollTop() > 50);
+        });
+
+        function submitSearch() {
+            if(isEmpty(document.getElementById('userLat').value) || isEmpty(document.getElementById('userLng').value)
+                || isEmpty(document.getElementById('address-input').value)){
+                $('#errorModal').modal();
+            } else{
+                document.getElementById("searchForm").submit();
+            }
+        }
+
+        /*<![CDATA[*/
+        var main = /*[[${mainPages}]]*/ false;
+        if(main){
+            document.getElementById('searchBar').className = document.getElementById('searchBar').className + " collapse show";
+            document.getElementById('arrowSearch').src = "/materialize/img/arrow-down.png";
+        }
+
+        var userLat = /*[[${userLat}]]*/ 0;
+        var userLon = /*[[${userLng}]]*/ 0;
+        var priceStart = /*[[${priceStart}]]*/ 0;
+        var priceEnd = /*[[${priceEnd}]]*/ 0;
+        var userAddress = /*[[${userAddress}]]*/ "";
+        var catData = /*[[${cat}]]*/ null;
+        var subCatData = /*[[${subCat}]]*/ null;
+        var categoryCheckedId = /*[[${groupType}]]*/ null;
+        var newItemsAmount = /*[[${constants.NEW_ITEMS_AMOUNT}]]*/ 16;
+
+
+        document.getElementById('userLat').value = userLat;
+        document.getElementById('userLng').value = userLon;
+        document.getElementById('priceStart').value = priceStart;
+        document.getElementById('priceEnd').value = priceEnd;
+        document.getElementById('address-input').value = userAddress;
+
+        var searchInput = document.getElementById('address-input');
+        var serachAutocomplete = new google.maps.places.Autocomplete(searchInput);
+
+        serachAutocomplete.addListener('place_changed', function() {
+            var place = serachAutocomplete.getPlace();
+            if (!place.geometry) {
+                // User entered the name of a Place that was not suggested and
+                // pressed the Enter key, or the Place Details request failed.
+                window.alert("No details available for input: '" + place.name + "'");
+                return;
+            } else {
+                lat = parseFloat(place.geometry.location.lat());
+                lon = parseFloat(place.geometry.location.lng());
+                document.getElementById('userLat').value = lat;
+                document.getElementById('userLng').value = lon;
+            }
+        });
+
+        function clearSearchInput() {
+            document.getElementById('userLat').value = 0;
+            document.getElementById('userLng').value = 0;
+        }
+
+        var typeSelect = document.getElementById('groupType');
+        if(categoryCheckedId != null){
+            typeSelect.value = categoryCheckedId;
+        }
+        var cat = document.getElementById('cat');
+        var subCat = document.getElementById('subCat');
+        categoryChecked(typeSelect.options[typeSelect.selectedIndex].value);
+        function categoryChecked(groupType) {
+            var oldVal = typeSelect.options[typeSelect.selectedIndex].value;
+            typeSelect.value = groupType;
+            var urlString = document.location.origin+"/search/cat/"+groupType;
+            $.getJSON(urlString, function(data) {
+                if(data != null){
+                    document.getElementById(oldVal).className = "img-fluid m-0 p-1 opacity-img";
+                    document.getElementById(oldVal+"Text").className = "font-weight-normal h8 text-dark mb-0";
+                    document.getElementById(groupType).className = "img-fluid m-0 p-1 opacity-img-clicked";
+                    document.getElementById(groupType+"Text").className = "font-weight-normal h8 text-info mb-0";
+
+                    subCat.options.length = 1;
+                    cat.options.length = 1;
+                    var size = Object.keys(data).length;
+                    for(var i = 0; i < size; i++){
+                        var option = document.createElement("option");
+                        option.text = data[i].name;
+                        option.value = data[i].id;
+                        cat.appendChild(option);
+                    }
+                    if(catData != null){
+                        cat.value = catData;
+                        subCategory();
+                    }
+
+                    if (typeof newItems === "function") {
+                        newItems(groupType);
+                    }
+                }
+            });
+        }
+
+        function subCategory() {
+            var urlString = document.location.origin+"/search/subCat/"+cat.options[cat.selectedIndex].value;
+            $.getJSON(urlString, function(data) {
+                if(data != null){
+                    subCat.options.length = 1;
+                    var size = Object.keys(data).length;
+                    for(var i = 0; i < size; i++){
+                        var option = document.createElement("option");
+                        option.text = data[i].name;
+                        option.value = data[i].id;
+                        subCat.appendChild(option);
+                    }
+                    if(catData != null){
+                        subCat.value = subCatData;
+                    }
+                } else{
+                    alert("null");
+                }
+            });
+        }
+
+
+
+        function isEmpty(str) {
+            return (!str || 0 === str.length);
+        }
+        /*]]>*/
+    </script>
+</div>
+</body>
+</html>

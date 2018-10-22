@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html th:lang="${constants.LANG}" xmlns:th="http://www.thymeleaf.org" th:dir="${constants.DIR}">
+<head th:replace="layout :: head(${constants.MAIN_HEADER})"></head>
+<body>
+
+<div th:replace="layout :: top"></div>
+
+<div class="jumbotron4 jumbotron-fluid">
+    <div class="container">
+        <div class="row">
+            <div class="list-group pl-3 col-md-3">
+                <div th:replace="layout :: side_menu"></div>
+            </div>
+            <div class="col-md-9">
+                <form th:action="@{${editRent}}" method="post" th:object="${item}" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-6 container">
+                            <fieldset class="form-group">
+                                <label class="labelText" th:text="${'*'+constants.CATEGORY_TYPE}"></label>
+                                <select id="rentType" th:field="*{groupType}" onchange="rentCategoryChecked()" class="custom-select" style="width:100%;">
+                                    <div th:replace="layout :: groupTypes"></div>
+                                </select>
+                                <label th:if="${#fields.hasErrors('groupType')}" th:errors="*{groupType}" class="text-danger"></label>
+                            </fieldset>
+                            <fieldset class="form-group">
+                                <label class="labelText" th:text="${'*'+constants.CATEGORY}"></label>
+                                <select id="category_id" th:field="*{category_id}" onchange="rentSubCategory()" class="custom-select" style="width:100%;">
+                                    <option value="0"  th:text="${'ללא קטגוריה'}"></option>
+                                </select>
+                                <label th:if="${#fields.hasErrors('category_id')}" th:errors="*{category_id}" class="text-danger"></label>
+                            </fieldset>
+                            <fieldset class="form-group">
+                                <label class="labelText" th:text="${'*'+constants.SUB_CATEGORY}"></label>
+                                <select id="subCategory_id" th:field="*{subCategory_id}" class="custom-select" style="width:100%;">
+                                    <option value="0"  th:text="${'ללא תת קטגוריה'}"></option>
+                                </select>
+                                <label th:if="${#fields.hasErrors('subCategory_id')}" th:errors="*{subCategory_id}" class="text-danger"></label>
+                            </fieldset>
+                            <fieldset class="form-group">
+                                <label class="labelText" th:text="${'*'+constants.RENT_NAME}"></label>
+                                <input type="text" class="form-control" th:field="*{name}"/>
+                                <label th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-danger"></label>
+                            </fieldset>
+                            <fieldset class="form-group">
+                                <label class="labelText mb-0" th:text="${'*'+constants.RENT_ADDRESS}"></label>
+                                <h6 class="font-weight-normal h7 mb-3" th:text="${'('+constants.ADDRESS_INFO+')'}"></h6>
+                                <h7 ></h7>
+                                <input id="address" type="text" onchange="clearInput()" class="form-control" th:field="*{address}"/>
+                                <input id="lat" type="text" class="form-control d-none" th:field="*{lat}"/>
+                                <input id="lng" type="text" class="form-control d-none" th:field="*{lng}"/>
+                                <label th:if="${#fields.hasErrors('lat')}" th:errors="*{lat}" class="text-danger"></label>
+                                <label th:if="${#fields.hasErrors('address')}" th:errors="*{address}" class="text-danger"></label>
+                            </fieldset>
+                            <fieldset class="form-group">
+                                <label class="labelText" th:text="${'*'+constants.RENT_COMMENT}"></label>
+                                <textarea class="form-control" th:field="*{comment}" rows="4"></textarea>
+                                <label th:if="${#fields.hasErrors('comment')}" th:errors="*{comment}" class="text-danger"></label>
+                            </fieldset>
+                            <fieldset class="form-group">
+                                <label class="labelText" th:text="${constants.RENT_STATUS}"></label>
+                                <select th:field="*{active}" class="custom-select" style="width:100%;">
+                                    <option th:text="${constants.ACTIVE}" value="true"></option>
+                                    <option th:text="${constants.NOT_ACTIVE}" value="false"></option>
+                                </select>
+                            </fieldset>
+                            <fieldset class="form-group">
+                                <label class="labelText" th:text="${constants.PRICE_PER+' '+constants.HOUR}"></label>
+                                <input type="number" class="form-control" th:field="*{priceHour}"/>
+                                <label th:if="${#fields.hasErrors('priceHour')}" th:errors="*{priceHour}" class="text-danger"></label>
+                            </fieldset>
+                            <fieldset class="form-group">
+                                <label class="labelText" th:text="${constants.PRICE_PER+' '+constants.DAY}"></label>
+                                <input type="number" class="form-control" th:field="*{priceDay}"/>
+                                <label th:if="${#fields.hasErrors('priceDay')}" th:errors="*{priceDay}" class="text-danger"></label>
+                            </fieldset>
+                            <fieldset class="form-group">
+                                <label class="labelText" th:text="${constants.PRICE_PER+' '+constants.MONTH}"></label>
+                                <input type="number" class="form-control" th:field="*{priceMonth}"/>
+                                <label th:if="${#fields.hasErrors('priceMonth')}" th:errors="*{priceMonth}" class="text-danger"></label>
+                            </fieldset>
+                        </div>
+                        <div class="col-md-6 container">
+                            <label class="labelText" th:text="${constants.RENT_PIC}"></label>
+                            <br/>
+                            <input id="rentImage" name="rentImage" type="file" accept="image/*" onchange="readURL(this);"/>
+                            <img id="uploadImageShow" class="rounded img-fluid mt-3 mb-3" th:src="@{|/images/${item.id}.jpg|}" alt="תאור המוצר"/>
+                            <div id="map"></div>
+                        </div>
+                    </div>
+                    <hr class="m-b-2"/>
+                    <button type="submit" class="btn-send btn-space" th:text="${constants.SEND}"></button>
+                    <button type="button" class="btn-delete btn-space" th:text="${constants.DELETE_RENT}" data-toggle="modal" data-target="#confirm"></button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="confirm" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-white" th:text="${constants.DELETE_RENT}"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p th:text="${constants.DELETE_CONFIRM}"></p>
+            </div>
+            <div class="modal-footer">
+                <form th:action="@{${deleteRent}}" method="post">
+                    <button type="button" class="btn btn-secondary btn-space" data-dismiss="modal" th:text="${constants.CANCEL}"></button>
+                    <button type="submit" class="btn btn-primary btn-space" th:text="${constants.DELETE_RENT}"></button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br/>
+<div th:replace="layout :: bottom"></div>
+
+<div th:replace="layout :: js"></div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var input = document.getElementById('address');
+    var autocomplete = new google.maps.places.Autocomplete(input);
+    var lat = /*[[${item.lat}]]*/ 0;
+    var lon = /*[[${item.lng}]]*/ 0;
+    initMap();
+
+    autocomplete.addListener('place_changed', function() {
+        var place = autocomplete.getPlace();
+        if (!place.geometry) {
+            // User entered the name of a Place that was not suggested and
+            // pressed the Enter key, or the Place Details request failed.
+            document.getElementById('lat').value = 0;
+            document.getElementById('lng').value = 0;
+            window.alert("No details available for input: '" + place.name + "'");
+
+            return;
+        } else{
+            lat = parseFloat(place.geometry.location.lat());
+            lon = parseFloat(place.geometry.location.lng());
+
+            document.getElementById('lat').value = lat;
+            document.getElementById('lng').value = lon;
+
+            //alert(lat+' '+lon);
+            initMap();
+        }
+    });
+
+    function clearInput() {
+        document.getElementById('lat').value = 0;
+        document.getElementById('lng').value = 0;
+    }
+
+    function initMap() {
+        var uluru = {lat: lat, lng: lon};
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 14,
+            center: uluru
+        });
+        var marker = new google.maps.Marker({
+            position: uluru,
+            map: map
+        });
+    }
+
+
+    var rentType = document.getElementById('rentType');
+    var userRentGroupType = /*[[${item.groupType}]]*/ null;
+    if(userRentGroupType != null){
+        rentType.value = userRentGroupType;
+    }
+    var rentCategory = document.getElementById('category_id');
+    var rentSubCat = document.getElementById('subCategory_id');
+    var userRentCat = /*[[${item.category_id}]]*/ 0;
+    var userRentSubCat = /*[[${item.subCategory_id}]]*/ 0;
+
+    rentCategoryChecked();
+    function rentCategoryChecked() {
+        var urlString = document.location.origin+"/search/cat/"+rentType.options[rentType.selectedIndex].value;
+        $.getJSON(urlString, function(data) {
+            if(data != null){
+                rentCategory.options.length = 1;
+                rentSubCat.options.length = 1;
+                var size = Object.keys(data).length;
+                for(var i = 0; i < size; i++){
+                    var option = document.createElement("option");
+                    option.text = data[i].name;
+                    option.value = data[i].id;
+                    rentCategory.appendChild(option);
+                }
+                if(userRentCat != 0){
+                    for (i = 0; i < rentCategory.length; ++i){
+                        if (rentCategory.options[i].value == userRentCat){
+                            rentCategory.value = userRentCat;
+                            if(userRentSubCat != 0){
+                                rentSubCategory();
+                            }
+                            break;
+                        }
+                    }
+                }
+            } else{
+                alert("error");
+            }
+        });
+
+    }
+
+    function rentSubCategory() {
+        var urlString = document.location.origin+"/search/subCat/"+rentCategory.options[rentCategory.selectedIndex].value;
+        $.getJSON(urlString, function(data) {
+            if(data != null){
+                rentSubCat.options.length = 1;
+                var size = Object.keys(data).length;
+                for(var i = 0; i < size; i++){
+                    var option = document.createElement("option");
+                    option.text = data[i].name;
+                    option.value = data[i].id;
+                    rentSubCat.appendChild(option);
+                }
+                if(userRentSubCat != 0) {
+                    for (i = 0; i < rentSubCat.length; ++i){
+                        if (rentSubCat.options[i].value == userRentSubCat){
+                            rentSubCat.value = userRentSubCat;
+                            break;
+                        }
+                    }
+                }
+            } else{
+                alert("error");
+            }
+        });
+    }
+    /*]]>*/
+</script>
+
+</body>
+</html>

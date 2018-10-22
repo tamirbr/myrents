@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html th:lang="${constants.LANG}" xmlns:th="http://www.thymeleaf.org" th:dir="${constants.DIR}">
+<head th:replace="layout :: head(${constants.MAIN_HEADER})"></head>
+<body>
+
+<div th:replace="layout :: top"></div>
+
+<div class="jumbotron5 jumbotron-fluid">
+    <div class="container">
+        <div class="row p-2">
+            <div class="col-md-auto pr-2 pl-3">
+                <h6 class="text-dark mt-1 mb-1">מיון לפי: </h6>
+            </div>
+            <div class="col-auto pl-2 pr-2">
+                <a th:if="${!sort.equals('tempDistance')}" href="#"><p class="text-dark font-weight-normal mb-1" onclick="updateSort('tempDistance');">מרחק</p></a>
+                <p th:if="${sort.equals('tempDistance')}" class="text-info font-weight-normal mb-1">מרחק</p>
+            </div>
+            <div class="col-auto pl-2 pr-2">
+                <a th:if="${!sort.equals('postDate')}" href="#"><p class="text-dark font-weight-normal mb-1" onclick="updateSort('postDate');">תאריך</p></a>
+                <p th:if="${sort.equals('postDate')}" class="text-info font-weight-normal mb-1">תאריך</p>
+            </div>
+            <div class="col-auto pl-2 pr-2">
+                <a th:if="${!sort.equals('priceHour')}" href="#"><p class="text-dark font-weight-normal mb-1" onclick="updateSort('priceHour');" th:text="${constants.PRICE_TO+constants.HOUR}"></p></a>
+                <p th:if="${sort.equals('priceHour')}" class="text-info font-weight-normal mb-1" th:text="${constants.PRICE_TO+constants.HOUR}"></p>
+            </div>
+            <div class="col-auto pl-2 pr-2">
+                <a th:if="${!sort.equals('priceDay')}" href="#"><p class="text-dark font-weight-normal mb-1" onclick="updateSort('priceDay');" th:text="${constants.PRICE_TO+constants.DAY}"></p></a>
+                <p th:if="${sort.equals('priceDay')}" class="text-info font-weight-normal mb-1" th:text="${constants.PRICE_TO+constants.DAY}"></p>
+            </div>
+            <div class="col-auto pl-2 pr-2">
+                <a th:if="${!sort.equals('priceMonth')}" href="#"><p class="text-dark font-weight-normal mb-1" onclick="updateSort('priceMonth');" th:text="${constants.PRICE_TO+constants.MONTH}"></p></a>
+                <p th:if="${sort.equals('priceMonth')}" class="text-info font-weight-normal mb-1" th:text="${constants.PRICE_TO+constants.MONTH}"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="jumbotron4 jumbotron-fluid">
+    <div  class="container">
+        <div th:if="${searchError == null}" class="row">
+            <div class="col-md-8 mt-2">
+                <input type="range" min="1" max="200" value="30" class="slider" id="distanceBar"/>
+            </div>
+            <div class="col-auto mt-2">
+                <h6 class="mb-0 mt-1">מרחק בק"מ: <span id="disVal"></span></h6>
+            </div>
+            <div class="col-auto mt-2">
+                <button onclick="updateDistance()" class="btn-send pl-2 pr-2 pb-0 pt-0" th:text="${constants.UPDATE_DISTANCE}"></button>
+            </div>
+        </div>
+
+        <h4 th:if="${searchError != null}" class="font-weight-normal text-info mt-2" th:text="${searchError}"></h4>
+
+        <div th:if="${searchError == null}">
+            <h4 th:if="${!items.isEmpty()}" class="font-weight-normal text-info mt-2" th:text="${constants.SEARCH_RESULT +': '+ userSearch}"></h4>
+            <div class="row" th:if="${items.isEmpty()}">
+                <div class="col-6-md mx-auto text-center mt-4">
+                    <h4 class="font-weight-normal text-info" th:text="${constants.NO_RESULTS+' '+userSearch}"></h4>
+                    <img class="ml-4 mr-4" src="/materialize/vectors/empty-box.svg"/>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div th:if="${searchError == null}" class="row">
+            <div th:if="${!items.isEmpty()}" th:each="item : ${items}" class="col-md-6 p-0">
+                <div class="row m-2 box-content" th:onclick="'openUrl(\''+${'/item/'+item.id}+'\');'" style="height: 92%;">
+                    <div class="col-auto text-center pl-0">
+                        <img th:if="${item.getImage() != null}"  class="rounded rentImageBig mt-3 mb-3" th:src="@{|/smallImages/${item.id}.jpg|}" th:alt="${item.name}"/>
+                        <img th:if="${item.getImage() == null}"  class="rounded rentImageBig mt-3 mb-3" th:src="@{/materialize/img/no_image.jpg}" th:alt="${item.name}"/>
+                    </div>
+                    <div class="col m-3 pr-0">
+                        <h5 class="font-weight-normal text-info" th:text="${item.getName()}"></h5>
+                        <h6 th:if="${item.isNotEmptyOrNull(constants.HOUR)}" class="font-weight-normal mb-1" th:text="${constants.PRICE_PER+' '+constants.HOUR+' '+item.priceHour+' '+constants.MONEY}"></h6>
+                        <h6 th:if="${item.isNotEmptyOrNull(constants.DAY)}" class="font-weight-normal mb-1" th:text="${constants.PRICE_PER+' '+constants.DAY+' '+item.priceDay+' '+constants.MONEY}"></h6>
+                        <h6 th:if="${item.isNotEmptyOrNull(constants.MONTH)}" class="font-weight-normal mb-2" th:text="${constants.PRICE_PER+' '+constants.MONTH+' '+item.priceMonth+' '+constants.MONEY}"></h6>
+
+                        <h6 class="font-weight-normal h7 mt-2" th:text="${constants.DATE+': '+ item.getPostDateString()+' | '+item.tempDistance+' '+constants.KM_FROM}"></h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${pages != null and pages > 1}" class="row mt-2">
+            <div class="col">
+            </div>
+            <div class="col-auto p-1" th:each="i : ${#numbers.sequence(1, pages)}">
+                <a href="#"><p class="text-dark" th:onclick="'updatePage(\'' + ${i} + '\');'" th:text="${i}"></p></a>
+            </div>
+            <div class="col">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<br/>
+<div th:replace="layout :: loginWin"></div>
+<div th:replace="layout :: bottom"></div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var userSearch = /*[[${userSearch}]]*/ "";
+    var distance = /*[[${distance}]]*/ 30;
+    var sort = /*[[${sort}]]*/ "distance";
+    var priceType = /*[[${priceType}]]*/ "priceHour";
+
+    document.getElementById('search').value = userSearch;
+    document.getElementById('distance').value = distance;
+    document.getElementById('sort').value = sort;
+    document.getElementById('priceType').value = priceType;
+
+    var slider = document.getElementById("distanceBar");
+    slider.value = distance;
+    var output = document.getElementById("disVal");
+    output.innerHTML = slider.value;
+
+    slider.oninput = function() {
+        output.innerHTML = this.value;
+        document.getElementById('distance').value = this.value;
+    }
+
+    function updateDistance(){
+        document.searchForm.submit();
+    }
+
+    function updatePage(pageNum){
+        document.getElementById('page').value = pageNum;
+        document.searchForm.submit();
+    }
+
+    function updateSort(sortType){
+        document.getElementById('sort').value = sortType;
+        document.searchForm.submit();
+    }
+    /*]]>*/
+</script>
+
+<div th:replace="layout :: js"></div>
+
+</body>
+</html>

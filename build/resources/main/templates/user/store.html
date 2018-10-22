@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html th:lang="${constants.LANG}" xmlns:th="http://www.thymeleaf.org" th:dir="${constants.DIR}">
+<head th:replace="layout :: head(${constants.MAIN_HEADER})"></head>
+<body>
+
+<div th:replace="layout :: top"></div>
+
+<div class="jumbotron5 jumbotron-fluid">
+    <div class="container">
+        <div class="row p-2">
+            <div class="col-auto p-0">
+                <img th:if="${tempUser.image != null}" class="store-user-icon mt-1" th:src="@{|/smallUserImage/${tempUser.id}.jpg|}"/>
+                <img th:if="${tempUser.image == null}" class="store-user-icon mt-1" th:src="@{/materialize/img/user.jpg}"/>
+            </div>
+            <div class="col-auto p-0">
+                <h6 class="text-dark mt-4 mb-4 mr-3" th:text="${constants.USER_STORE+' '+tempUser.firstName+' '+tempUser.lastName}"></h6>
+            </div>
+            <div class="col">
+            </div>
+            <div class="col-auto p-1 m-2">
+                <a th:href="${'mailto:'+tempUser.email}"><img th:src="@{/materialize/img/mail.png}"/></a>
+            </div>
+            <div class="col-auto p-1 m-2">
+                <a th:href="${'tel:'+tempUser.phone}"><img th:src="@{/materialize/img/phone.png}"/></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="jumbotron4 jumbotron-fluid">
+    <div  class="container">
+        <div th:if="${!tempUser.items.isEmpty()}" class="row p-0" >
+            <div class="col-md-6 p-0" th:each="item : ${tempUser.items}">
+                <div class="row m-2 box-content" th:onclick="'openUrl(\''+${'/item/'+item.id}+'\');'" style="height: 92%;">
+                    <div class="col-auto text-center pl-0">
+                        <img th:if="${item.getImage() != null}"  class="rounded rentImageBig mt-3 mb-3" th:src="@{|/smallImages/${item.id}.jpg|}" th:alt="${item.name}"/>
+                        <img th:if="${item.getImage() == null}"  class="rounded rentImageBig mt-3 mb-3" th:src="@{/materialize/img/no_image.jpg}" th:alt="${item.name}"/>
+                    </div>
+                    <div class="col m-3 pr-0">
+                        <h5 class="font-weight-normal text-info" th:text="${item.getName()}"></h5>
+                        <h6 th:if="${item.isNotEmptyOrNull(constants.HOUR)}" class="font-weight-normal mb-1" th:text="${constants.PRICE_PER+' '+constants.HOUR+' '+item.priceHour+' '+constants.MONEY}"></h6>
+                        <h6 th:if="${item.isNotEmptyOrNull(constants.DAY)}" class="font-weight-normal mb-1" th:text="${constants.PRICE_PER+' '+constants.DAY+' '+item.priceDay+' '+constants.MONEY}"></h6>
+                        <h6 th:if="${item.isNotEmptyOrNull(constants.MONTH)}" class="font-weight-normal mb-2" th:text="${constants.PRICE_PER+' '+constants.MONTH+' '+item.priceMonth+' '+constants.MONEY}"></h6>
+
+                        <h6 class="font-weight-normal h7 mt-2" th:text="${constants.DATE+': '+ item.getPostDateString()}"></h6>
+                        <h6 class="font-weight-normal h7 mt-1" th:text="${item.address}"></h6>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<br/>
+<div th:replace="layout :: loginWin"></div>
+<div th:replace="layout :: bottom"></div>
+
+<div th:replace="layout :: js"></div>
+
+</body>
+</html>

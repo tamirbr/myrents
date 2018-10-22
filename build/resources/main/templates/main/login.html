@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html th:lang="${constants.LANG}" xmlns:th="http://www.thymeleaf.org" th:dir="${constants.DIR}">
+<head th:replace="layout :: head(${constants.MAIN_HEADER})"></head>
+<body>
+
+<div th:replace="layout :: top"></div>
+
+<div class="jumbotron4 jumbotron-fluid">
+<div class="container">
+        <div class="col-md-6">
+            <form th:action="@{${login}}" method="post" th:object="${user}">
+                <fieldset class="form-group">
+                    <label class="labelText" th:text="${constants.EMAIL}"></label>
+                    <input type="email" class="form-control" th:field="*{email}"/>
+                </fieldset>
+                <fieldset class="form-group">
+                    <label class="labelText" th:text="${constants.PASSWORD}"></label>
+                    <input type="password" class="form-control" th:field="*{password}"/>
+                </fieldset>
+                <div th:if="${badLogin != null}" th:text="${badLogin}" class="alert alert-danger" role="alert">
+                </div>
+                <div class="g-recaptcha mb-3" data-sitekey="6LeOOk8UAAAAANBNbbLRMqwlxXmG7xl7BxxDhlGL"></div>
+                <div th:if="${loginRecaptcha != null}" th:text="${loginRecaptcha}" class="alert alert-danger" role="alert">
+                </div>
+                <hr class="m-b-2"/>
+                <div class="form-check text-right">
+                    <label class="custom-control custom-checkbox">
+                        <div style="width:25px;height:25px" class="col text-right">
+                            <input name="rememberPass" type="checkbox" class="custom-control-input"/>
+                            <span class="custom-control-indicator"></span>
+                        </div>
+                        &nbsp;&nbsp;
+                        <span class="custom-control-description labelText" th:text="${constants.REMEMBER_PASS}"></span>
+                    </label>
+                </div>
+                <button type="submit" class="btn-send" th:text="${constants.SEND}"></button>
+            </form>
+        </div>
+</div>
+</div>
+
+<br/>
+<div th:replace="layout :: bottom"></div>
+
+
+<div th:replace="layout :: js"></div>
+
+</body>
+</html>

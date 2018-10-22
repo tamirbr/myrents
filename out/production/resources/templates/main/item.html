@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html th:lang="${constants.LANG}" xmlns:th="http://www.thymeleaf.org" th:dir="${constants.DIR}">
+<head th:replace="layout :: head(${constants.MAIN_HEADER})"></head>
+<body>
+
+<div th:replace="layout :: top"></div>
+
+<div class="jumbotron4 jumbotron-fluid">
+    <div class="container">
+        <div class="row mt-2">
+            <div class="col-md-7">
+                <div class="box-content p-2 mb-2">
+                    <div class="row mb-1">
+                        <div class="col-md">
+                            <div class="row mb-1">
+                                <div class="col-auto">
+                                    <h4 class="font-weight-normal text-info" th:text="${item.name}"></h4>
+                                </div>
+                                <div th:if="${user.id != null}" class="col-auto">
+                                    <a href="#">
+                                        <div th:if="${user.getBookMarkById(item.id) == null}" th:id="${'bookMarkStar'+item.id}" th:onclick="'submitBookmark(\'' + ${item.id} + '\');'" class="star-image mt-1"/>
+                                        <div th:if="${user.getBookMarkById(item.id) != null}" th:id="${'bookMarkStar'+item.id}" th:onclick="'submitBookmark(\'' + ${item.id} + '\');'" class="star-image-on mt-1"/>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <h6 th:if="${item.isNotEmptyOrNull(constants.HOUR)}" class="font-weight-normal mb-1" th:text="${constants.PRICE_PER+' '+constants.HOUR+' '+item.priceHour+' '+constants.MONEY}"></h6>
+                            <h6 th:if="${item.isNotEmptyOrNull(constants.DAY)}" class="font-weight-normal mb-1" th:text="${constants.PRICE_PER+' '+constants.DAY+' '+item.priceDay+' '+constants.MONEY}"></h6>
+                            <h6 th:if="${item.isNotEmptyOrNull(constants.MONTH)}" class="font-weight-normal mb-2" th:text="${constants.PRICE_PER+' '+constants.MONTH+' '+item.priceMonth+' '+constants.MONEY}"></h6>
+
+                            <h6 class="font-weight-normal mb-2" th:text="${item.comment}"></h6>
+                            <h6 class="font-weight-normal h7 mb-3" th:text="${constants.DATE+': '+ item.getPostDateString()}"></h6>
+                            <a th:href="${'/store/'+item.user.id}"><h6 class="font-weight-normal text-info mb-2" th:text="${constants.RENTER_NAME+': '+item.user.firstName+' '+item.user.lastName}"></h6></a>
+                        </div>
+                        <div class="col-md-auto">
+                            <span id="itemCat" class="badge badge-primary badge-pill"></span>
+                            <br/>
+                            <span id="itemSubCat" class="badge badge-info badge-pill"></span>
+                            <div class="row m-1">
+                                <div class="col-auto p-0 m-1">
+                                    <a th:href="${'mailto:'+item.user.email}"><img th:src="@{/materialize/img/mail.png}"/></a>
+                                </div>
+                                <div class="col-auto p-0 m-1">
+                                    <a th:href="${'tel:'+item.user.phone}"><img th:src="@{/materialize/img/phone.png}"/></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+                <h6 class="font-weight-normal mb-2 mr-2 mt-3" th:text="${item.address}"></h6>
+                <div id="map"></div>
+            </div>
+            <div class="col-md-5">
+                <img id="rentImageShow" class="rounded img-fluid mt-3 mb-3" th:src="@{|/images/${item.id}.jpg|}" th:alt="${item.name}"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container">
+
+</div>
+
+<br/>
+<div th:replace="layout :: loginWin"></div>
+<div th:replace="layout :: bottom"></div>
+
+<div th:replace="layout :: js"></div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var lat = /*[[${item.lat}]]*/ 0;
+    var lon = /*[[${item.lng}]]*/ 0;
+    var uluru = {lat: lat, lng: lon};
+    var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 14,
+        center: uluru
+    });
+    var marker = new google.maps.Marker({
+        position: uluru,
+        map: map
+    });
+
+    var itemCat    = /*[[${item.category_id}]]*/ 0;
+    var itemSubCat = /*[[${item.subCategory_id}]]*/ 0;
+    var urlCatString = document.location.origin + "/search/category/"+itemCat+"/"+itemSubCat;
+    $.getJSON(urlCatString, function (data) {
+        if (data != null) {
+            document.getElementById('itemCat').innerHTML = data[0];
+            document.getElementById('itemSubCat').innerHTML = data[1];
+        }
+    });
+    /*]]>*/
+</script>
+
+</body>
+</html>

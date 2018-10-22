@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl">
+<head th:replace="layout :: head('error')"></head>
+<body>
+<style>
+    .app-error {
+        margin-top: 20px;
+        border: 1px solid #757575;
+        padding: 10px;
+        background-color: #ffffff;
+        border-radius: 6px;
+    }
+</style>
+<div class="jumbotron2">
+    <div class="container">
+        <div class="row">
+
+            <div class="col">
+                <h5>אופס, קרתה שגיאה!</h5>
+            </div>
+            <div class="col-auto">
+                <a href="/"> <button type="submit" class="btn-send float-left">חזור לדף הבית</button></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container text-center">
+    <br/>
+    <h2 class="text-dark mb-3" th:text="|${#httpServletRequest.getAttribute('javax.servlet.error.status_code')} Error|">500 Error</h2>
+
+    <img th:src="@{/materialize/img/sad-face.png}"/>
+</div>
+
+</body>
+</html>
